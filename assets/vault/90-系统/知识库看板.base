@@ -1,0 +1,44 @@
+filters:
+  and:
+    - 'file.ext == "md"'
+    - '!file.name.startsWith("00-")'
+properties:
+  file.name:
+    displayName: 笔记
+  note.status:
+    displayName: 原记录状态
+  note.created_at:
+    displayName: 内容记录日期
+views:
+  - type: table
+    name: 项目
+    filters: 'file.inFolder("01-Projects-当前任务") && !file.inFolder("01-Projects-当前任务/待确认是否继续")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 收件箱
+    filters: 'file.inFolder("00-灵感与收件箱")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 经验复利
+    filters: 'file.inFolder("05-Skills-经验复利") && !file.inFolder("05-Skills-经验复利/待验证方法")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 待验证方法
+    filters: 'file.inFolder("05-Skills-经验复利/待验证方法")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 待确认项目
+    filters: 'file.inFolder("01-Projects-当前任务/待确认是否继续")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 长期领域
+    filters: 'file.inFolder("02-Areas-长期领域")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 参考资料
+    filters: 'file.inFolder("03-Resources-参考资料")'
+    order: [file.name, note.status, note.created_at]
+  - type: table
+    name: 归档
+    filters: 'file.inFolder("04-Archive-归档")'
+    order: [file.name, note.status, note.created_at]
