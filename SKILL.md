@@ -36,7 +36,7 @@ Windows 优先使用可用的 `py -3`，否则探测 `python`；脚本需要 Pyt
 python3 scripts/desktop.py install
 ```
 
-已有 Obsidian 则复用，不升级或重装。辅助脚本读取官方稳定发行版，匹配系统与架构，校验官方 SHA-256；macOS 安装到用户 Applications，Linux 使用用户目录 AppImage，Windows 启动官方安装器。
+已有 Obsidian 先复用，不重复安装；只有实际版本不支持所需内置功能时，才按官方更新方式升级并重新验收。辅助脚本读取官方稳定发行版，匹配系统与架构，校验官方 SHA-256；macOS 安装到用户 Applications，Linux 使用用户目录 AppImage，Windows 启动官方安装器。
 
 Windows 返回 `installer_launched_finish_in_gui` 时，继续用可用的桌面工具完成安装器；系统必须本人处理的确认才交给用户。完成后重跑 `doctor`，不能把“安装器已打开”当成应用已安装。脚本下载或签名校验失败时检查一次具体原因，必要时改走 [官方下载页](https://obsidian.md/download) 的图形安装流程，不绕过校验或关闭系统保护。操作说明见 [references/obsidian-desktop.md](references/obsidian-desktop.md)。
 
