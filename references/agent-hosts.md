@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | Codex 本地 | `~/.agents/skills/`；已确认当前宿主加载其他配置目录时沿用实际目录 | `--agent codex`，或显式 `--skills-dir` |
 | Claude Code 本地 | `~/.claude/skills/` | `--agent claude`，或显式 `--skills-dir` |
+| WorkBuddy 本地 | 自定义技能先通过「添加技能 → 上传技能」导入，核实实际读取位置 | 确认发现目录后用 `--skills-dir "真实路径"`；不要臆测成 Codex / Claude 目录 |
 | 其他支持 Agent Skills 的本地宿主 | 读取其已配置目录或官方说明 | `--skills-dir "真实路径"` |
 | 只有项目指令文件的宿主 | 实际读取的 `AGENTS.md`、`CLAUDE.md` 或其他 UTF-8 文件 | `--agent-file "真实路径"` |
 
@@ -15,6 +16,8 @@
 
 Codex 可以按需刷新或重开会话。Claude Code 的个人本地 skills 不等于 Cowork 或云端会话的 skills；远程容器的路径也不等于用户本机路径。
 
+WorkBuddy 的普通对话安装按官方说明只支持技能市场；本包发布在 GitHub，市场搜索无结果时应转为上传完整技能包，详见 [INSTALL.md](../INSTALL.md)。已导入的安装 skill 只证明能加载此包；生成的 `personal-kb` 也需要进入 WorkBuddy 实际发现的目录并启用。如果不能确认发现目录，可在持久位置生成 `personal-kb` 技能目录后，通过同一上传入口导入；未实际导入或被发现前，报告后续入口待完成。不要只写进下载缓存就称跨会话可用。
+
 如果已有 `personal-kb` 指向另一个 Vault，保留并确认用户的目标，不悄悄更换。若实际需要多库，再为每库单独命名运行入口。
 
-来源（2026-10-26 核对）：[OpenAI 官方 Build skills](https://learn.chatgpt.com/docs/build-skills)、[Claude Code 官方 Skills](https://code.claude.com/docs/en/skills)。路径与限制若变化，以宿主实际发现结果和最新官方说明为准。
+来源（2026-10-26 核对）：[OpenAI 官方 Build skills](https://learn.chatgpt.com/docs/build-skills)、[Claude Code 官方 Skills](https://code.claude.com/docs/en/skills)、[WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。路径与限制若变化，以宿主实际发现结果和最新官方说明为准。

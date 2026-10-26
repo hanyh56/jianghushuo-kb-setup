@@ -26,7 +26,7 @@ Windows 优先使用可用的 `py -3`，否则探测 `python`；脚本需要 Pyt
 
 `doctor` 返回系统、已安装应用、已登记 Vault 与建议路径。已有同结构库优先沿用；有多个无法判断的库，才用一个自然语言问题确认目标。没有现有库则直接使用默认目录。不要把个人知识库建进临时目录、skill 目录或公司代码仓库。
 
-识别当前宿主的**真实 skills 发现目录**。优先沿用已成功加载本 skill 的个人 skills 根目录；不要把临时下载目录当成发现目录。Codex / Claude Code 的已核实路径和其他宿主处理方式见 [references/agent-hosts.md](references/agent-hosts.md)。
+识别当前宿主的**真实 skills 发现目录**。优先沿用已成功加载本 skill 的个人 skills 根目录；不要把临时下载目录当成发现目录。Codex / Claude Code 的已核实路径，以及 WorkBuddy 自定义技能上传与持久入口处理方式见 [references/agent-hosts.md](references/agent-hosts.md)。本包来源是指定 GitHub 仓库，技能市场无搜索结果不代表本包不存在。
 
 ## 2. 检测并安装 Obsidian
 

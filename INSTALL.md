@@ -2,8 +2,25 @@
 
 本入口用于用户明确请求安装这套知识库。下载完整仓库，再读取根目录 `SKILL.md`；不要只保存本文件或 SKILL.md 而遗漏 assets、scripts 与 references。
 
+本 skill 的发布来源是下面的 GitHub 仓库，尚未由维护者上架到 SkillHub 或 ClawHub。只按名称搜索技能市场，找不到不能判定本仓库不存在；收到此地址后，直接读取并获取本仓库。
+
 - 仓库：https://github.com/hanyh56/jianghushuo-kb-setup
 - ZIP：https://github.com/hanyh56/jianghushuo-kb-setup/archive/refs/heads/main.zip
+
+## WorkBuddy 用户先导入技能包
+
+WorkBuddy 官方说明，普通对话安装仅支持技能市场中的技能；自定义技能包使用上传导入。因此推荐：
+
+1. 下载上面的完整 ZIP。
+2. 打开 WorkBuddy 左侧「专家·技能·连接器」→「技能」→「添加技能」→「上传技能」，选择 ZIP。
+3. 在「已安装」中确认 `jianghushuo-kb-setup` 已出现并启用。若当前版本不接受 GitHub ZIP 的外层目录，解压后将包含 `SKILL.md`、`assets/`、`scripts/` 和 `references/` 的完整技能目录重新打包再上传。
+4. 输入：使用 jianghushuo-kb-setup，完整安装我的 Obsidian 个人知识库，搭好目录、模板和工作台，配置后续使用入口，并完成读写验收。已有内容保留。
+
+若 WorkBuddy 能从链接读取文件并执行本机命令，也可直接获取本仓库、审阅后读取 `SKILL.md` 执行；这不等于技能已出现在「已安装」列表。持久安装与后续入口需要分别验证，不因市场无结果而反复搜索或安装名称相近的技能。
+
+官方说明：https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market
+
+## 获取完整文件后继续执行
 
 有 Git 可克隆；没有 Git 则用本机下载工具取 ZIP，再用系统解压工具或 Python 标准库解压。已有同名目录先读现状，不覆盖或删除。临时下载可以放缓存，实际知识库必须放持久目录。
 

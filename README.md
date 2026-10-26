@@ -8,9 +8,24 @@
 
 > 请按 https://raw.githubusercontent.com/hanyh56/jianghushuo-kb-setup/main/INSTALL.md 完整安装这套知识库，包括检查和安装 Obsidian、搭建目录与模板、配置后续 Agent 入口、打开工作台并验证读写。已有内容保留。
 
-Agent 会自行下载完整仓库并执行。没有现有库和指定路径时，默认建在当前用户的 `Documents/个人知识库`，不要求你先设计分类或填写安装参数。
+具备链接读取、文件下载和本机执行能力的 Agent 可获取完整仓库并执行。没有现有库和指定路径时，默认建在当前用户的 `Documents/个人知识库`，不要求你先设计分类或填写安装参数。
 
 [下载完整 ZIP](https://github.com/hanyh56/jianghushuo-kb-setup/archive/refs/heads/main.zip) · [查看 Skill](SKILL.md)
+
+## WorkBuddy 安装方式
+
+本 skill 已发布在 GitHub，尚未由维护者上架到 SkillHub 或 ClawHub。只说「安装 jianghushuo-kb-setup」，WorkBuddy 可能只搜索市场而找不到。
+
+按 [WorkBuddy 官方说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)，普通对话安装仅支持市场技能，自定义技能包需要上传导入：
+
+1. 下载上面的完整 ZIP。
+2. 在 WorkBuddy 打开「专家·技能·连接器」→「技能」→「添加技能」→「上传技能」，选中 ZIP。
+3. 在「已安装」中确认 `jianghushuo-kb-setup` 已启用。若当前版本不接受 GitHub ZIP 的外层目录，将解压后的完整技能目录重新打包再上传；保留全部配套文件。
+4. 输入：
+
+   > 使用 jianghushuo-kb-setup，完整安装我的 Obsidian 个人知识库，搭好目录、模板和工作台，配置后续使用入口，并完成读写验收。已有内容保留。
+
+这里确认的是官方提供自定义技能导入方式；维护者尚未在实际 WorkBuddy 客户端完成端到端验收。导入成功、知识库搭建、应用打开和后续会话入口需按实际结果分别确认。
 
 ## 一次安装会完成什么
 
