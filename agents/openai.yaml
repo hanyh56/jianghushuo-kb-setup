@@ -1,4 +1,4 @@
 interface:
   display_name: "姜胡说知识库安装"
-  short_description: "在支持文件读写的 Agent 上安装知识库结构、模板与协作规则"
-  default_prompt: "使用 $jianghushuo-kb-setup 安装这套知识库，保留已有内容并验证当前 Agent 能实际访问。"
+  short_description: "从安装 Obsidian 到建库、Agent 接入和读写验收的一次完整落地"
+  default_prompt: "使用 $jianghushuo-kb-setup 完整安装个人知识库，包括 Obsidian、目录模板、持久接入与首次使用验收。"

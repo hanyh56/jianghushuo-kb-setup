@@ -10,8 +10,15 @@ from pathlib import Path
 import re
 import sys
 
+from setup_support import apply_plan, roundtrip, runtime_plan, settings_plan
+
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8")
+
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "vault"
+SKILL_ROOT = ASSETS.parent.parent
 START = "<!-- jianghushuo-kb-setup:start -->"
 END = "<!-- jianghushuo-kb-setup:end -->"
 
@@ -91,13 +98,16 @@ def check_links(vault, relatives):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--vault", required=True, help="Knowledge-base directory")
+    parser.add_argument("--vault", help="Knowledge-base directory; default: ~/Documents/个人知识库")
+    parser.add_argument("--agent", choices=["codex", "claude"], help="Known local host; installs a durable personal-kb skill")
+    parser.add_argument("--skills-dir", help="Actual supported skills directory; overrides --agent default")
     parser.add_argument("--agent-file", help="An explicitly selected host instruction file (AGENTS.md, CLAUDE.md, etc.)")
+    parser.add_argument("--no-obsidian-config", action="store_true", help="Only when the user explicitly wants files without Obsidian settings")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Preview without writing")
     mode.add_argument("--check", action="store_true", help="Read-back and link check without writing")
     args = parser.parse_args()
-    vault = absolute(args.vault).resolve()
+    vault = absolute(args.vault).resolve() if args.vault else Path.home() / "Documents" / "个人知识库"
     if vault.exists() and not vault.is_dir():
         raise ValueError("Vault is not a directory: " + str(vault))
     if not ASSETS.is_dir():
@@ -105,19 +115,34 @@ def main():
     assets = sorted(path for path in ASSETS.rglob("*") if path.is_file())
     if not assets:
         raise ValueError("Empty assets/vault")
-    missing, same, conflicts = [], [], []
+    legacy_file = SKILL_ROOT / "assets/legacy-v1-sha256.json"
+    legacy = json.loads(legacy_file.read_text(encoding="utf-8")) if legacy_file.is_file() else {}
+    missing, same, conflicts, plans = [], [], [], []
     for source in assets:
         relative = source.relative_to(ASSETS)
         target = destination(vault, relative)
         if not target.exists():
             missing.append(relative)
+            plans.append({"path": target, "old": None, "data": source.read_bytes(), "kind": "vault_file"})
         elif not target.is_file():
             raise ValueError("Expected a file: " + str(target))
         elif target.read_bytes() == source.read_bytes():
             same.append(relative)
         else:
             target.read_text(encoding="utf-8-sig")
-            conflicts.append(relative)
+            old = target.read_bytes()
+            if hashlib.sha256(old).hexdigest() == legacy.get(relative.as_posix()):
+                plans.append({"path": target, "old": old, "data": source.read_bytes(), "kind": "template_upgrade"})
+            else:
+                conflicts.append(relative)
+    obsidian_plans = [] if args.no_obsidian_config else settings_plan(vault, destination)
+    plans.extend(obsidian_plans)
+    skills_dir = absolute(args.skills_dir).resolve() if args.skills_dir else None
+    if skills_dir is None and args.agent:
+        skills_dir = Path.home() / (".agents" if args.agent == "codex" else ".claude") / "skills"
+    runtime = runtime_plan(vault, skills_dir, SKILL_ROOT, destination) if skills_dir is not None else None
+    if runtime:
+        plans.append(runtime)
     agent_path = absolute(args.agent_file) if args.agent_file else None
     old, new, connection = None, None, "not_configured"
     if agent_path:
@@ -125,6 +150,14 @@ def main():
         if agent_path.resolve() in {(vault / p.relative_to(ASSETS)).resolve() for p in assets}:
             raise ValueError("External agent file overlaps a managed knowledge-base file")
         old, new, connection = prepare_agent_file(agent_path, vault)
+        plans.append({"path": agent_path, "old": old, "data": new, "kind": "agent_instruction"})
+    # Validate every planned path before creating even the first file.
+    for plan in plans:
+        for parent in plan["path"].parents:
+            if parent.exists() and not parent.is_dir():
+                raise ValueError("Parent is not a directory: " + str(parent))
+        if plan["path"].is_symlink():
+            raise ValueError("Refusing symlink: " + str(plan["path"]))
     report = {
         "vault": str(vault),
         "mode": "check" if args.check else ("dry_run" if args.dry_run else "install"),
@@ -132,41 +165,44 @@ def main():
         "unchanged": len(same), "conflicts": [p.as_posix() for p in conflicts],
         "agent_file": str(agent_path) if agent_path else None,
         "agent_connection": connection,
+        "runtime_skill": str(runtime["path"]) if runtime else None,
+        "planned_changes": [{"path": str(p["path"]), "kind": p["kind"]} for p in plans if p["old"] != p["data"]],
+        "updated": [],
+        "completion": {"agent_entry": "planned" if agent_path or runtime else "not_configured", "desktop": "not_checked_by_this_script"},
     }
     if not args.dry_run and not args.check:
-        for relative in missing:
-            target = destination(vault, relative)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            expected = (ASSETS / relative).read_bytes()
-            with target.open("xb") as stream:
-                stream.write(expected)
-            if hashlib.sha256(target.read_bytes()).digest() != hashlib.sha256(expected).digest():
-                raise ValueError("Read-back mismatch: " + str(target))
-            report["created"].append(relative.as_posix())
+        for plan in plans:
+            applied = apply_plan(plan)
+            if applied["action"] == "created":
+                try:
+                    name = plan["path"].relative_to(vault).as_posix()
+                except ValueError:
+                    name = str(plan["path"])
+                report["created"].append(name)
+            elif applied["action"] == "updated":
+                report["updated"].append(applied)
         report["missing"] = []
-        if agent_path and old != new:
-            agent_path.parent.mkdir(parents=True, exist_ok=True)
-            if old is None:
-                with agent_path.open("xb") as stream:
-                    stream.write(new)
-            else:
-                # Append only, leaving every byte of the existing instructions intact.
-                with agent_path.open("r+b") as stream:
-                    if stream.read() != old:
-                        raise ValueError("Agent file changed during setup; rerun")
-                    stream.seek(0, 2)
-                    stream.write(new[len(old):])
-            if agent_path.read_bytes() != new:
-                raise ValueError("Agent entry read-back mismatch")
+        if agent_path:
             report["agent_connection"] = "connected"
         for name in ("AGENTS.md", "知识资产工作台.md", "90-系统/维护与AI协作规则.md"):
             destination(vault, Path(name)).read_text(encoding="utf-8-sig")
+        report["roundtrip"] = roundtrip(vault, destination)
+    settings_missing = [str(p["path"]) for p in obsidian_plans if p["old"] != p["data"]] if args.check or args.dry_run else []
+    report["obsidian_settings"] = {"status": "skipped" if args.no_obsidian_config else ("needs_configuration" if settings_missing else "configured"), "pending": settings_missing}
     if not args.dry_run:
         report["links"] = check_links(vault, [p.relative_to(ASSETS) for p in assets])
     incomplete = bool(report["missing"] or conflicts or report.get("links", {}).get("broken"))
+    if args.check and any(p["old"] != p["data"] for p in plans):
+        incomplete = True
     if args.check and agent_path and connection != "already_connected":
         incomplete = True
+    if agent_path or runtime:
+        entry_ready = (runtime is None or runtime["path"].is_file() and runtime["path"].read_bytes() == runtime["data"])
+        entry_ready = entry_ready and (agent_path is None or agent_path.is_file() and agent_path.read_bytes() == new)
+        report["completion"]["agent_entry"] = "configured" if entry_ready else "not_configured"
     report["status"] = ("needs_review" if conflicts else "ready_to_install") if args.dry_run else ("needs_review" if incomplete else "ok")
+    if not incomplete and not args.dry_run and not (agent_path or runtime):
+        report["status"] = "files_ready_agent_entry_missing"
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 2 if args.check and incomplete else 0
 

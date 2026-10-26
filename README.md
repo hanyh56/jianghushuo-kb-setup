@@ -1,82 +1,111 @@
 # 姜胡说知识库安装 Skill
 
-把一套能被 AI Agent 实际读写的个人知识库，装到你自己的目录里。
+打开一个本地 Agent，执行这个 skill，让它从零把 **Obsidian、知识库结构、模板、Agent 入口和首次使用验收**一起落地。
 
-这是受姜胡说知识管理思路启发、结合 PARA 整理的适配版，**不是官方模板**。提供空白目录、模板、协作规则和离线安装器，不含私人笔记或付费课程。
+这是受姜胡说知识管理思路启发、结合 PARA 整理的适配版，**不是官方模板**。不含私人笔记或付费课程，不要求购买同步服务或注册账号。
 
-## 直接交给 Agent
+## 给 Agent 这一句话
 
-复制下面这段话给支持文件读写的 Agent：
+> 请按 https://raw.githubusercontent.com/hanyh56/jianghushuo-kb-setup/main/INSTALL.md 完整安装这套知识库，包括检查和安装 Obsidian、搭建目录与模板、配置后续 Agent 入口、打开工作台并验证读写。已有内容保留。
 
-> 请从 https://github.com/hanyh56/jianghushuo-kb-setup 下载完整仓库，读取根目录 SKILL.md，把这套知识库安装到我指定的目录，并接入你实际支持的指令入口。保留已有文件，遇到冲突先读原文再处理，安装后验证并告诉我路径。没有 skill 机制也可以直接按说明执行。
+Agent 会自行下载完整仓库并执行。没有现有库和指定路径时，默认建在当前用户的 `Documents/个人知识库`，不要求你先设计分类或填写安装参数。
 
-需要一个纯文本入口时，交给 Agent 这个 [安装说明](https://raw.githubusercontent.com/hanyh56/jianghushuo-kb-setup/main/INSTALL.md)。它会指向完整仓库，不能只下载 SKILL.md 而遗漏模板和脚本。
+[下载完整 ZIP](https://github.com/hanyh56/jianghushuo-kb-setup/archive/refs/heads/main.zip) · [查看 Skill](SKILL.md)
 
-## 直接下载
+## 一次安装会完成什么
 
-[下载完整 ZIP 安装包](https://github.com/hanyh56/jianghushuo-kb-setup/archive/refs/heads/main.zip)
+1. **检查环境**：识别系统、Python、Obsidian、已登记的库和当前 Agent 的真实技能目录。
+2. **安装 Obsidian**：已有则复用；未安装时匹配官方稳定版与系统架构，下载并验证 SHA-256，再安装或完成官方安装器。
+3. **搭建知识库**：建立六类目录、工作台、五类模板和首次使用入口。
+4. **配置界面**：启用内置模板、日记和 Bases；新笔记进入收件箱，移动文件更新链接。已有相关配置先备份，无关设置保留。
+5. **接入后续 Agent**：生成带真实库路径的 `personal-kb` 使用 skill；仅支持指令文件的宿主则追加入口。
+6. **打开并验收**：首次将目录作为 Vault 登记，定位工作台；写入、回读、检索并清理临时测试笔记。
 
-解压后，把 `jianghushuo-kb-setup-main` 重命名为 `jianghushuo-kb-setup`，整体放入你的 Agent 实际配置的 skills 目录。没有 skills 目录的 Agent，直接让它读取包里的 `SKILL.md`。
+安装器已打开、应用已安装、本库已登记、工作台已显示，是四个不同状态。Agent 必须按实际证据完成并报告，不能只生成目录就称全部完成。
 
-也可以克隆：
+## 知识库结构
+
+```text
+个人知识库/
+├── AGENTS.md
+├── 第一次使用.md
+├── 开始这里.md
+├── 知识资产工作台.md
+├── 00-灵感与收件箱/
+├── 01-Projects-当前任务/
+│   └── 待确认是否继续/
+├── 02-Areas-长期领域/
+│   └── 每日记录/
+├── 03-Resources-参考资料/
+│   ├── 本人原始记录/来源导入/
+│   └── 外部参考/
+├── 04-Archive-归档/
+├── 05-Skills-经验复利/
+│   └── 待验证方法/
+├── 90-系统/
+│   ├── 模板/
+│   ├── 知识库看板.base
+│   └── 维护与AI协作规则.md
+└── .obsidian/                 # 库内基础配置
+```
+
+经验目录里的笔记和 Agent 技能是不同的东西：`05-Skills-经验复利/` 保存方法与证据；宿主 skills 目录中的 `personal-kb` 告诉 Agent 如何找到并使用你的库。
+
+## 装完怎么用
+
+直接说：
+
+- “把这个想法记入我的知识库：……”
+- “我要做这件事，帮我建项目卡：……”
+- “找一下我以前关于……的记录。”
+
+新会话可说“我的知识库在哪”验证入口。没有真实项目时不创建假项目，不要求每天清空收件箱，不把 AI 建议写成你的经历。
+
+## 手动运行
+
+脚本使用 Python 3.8+ 标准库，无需 pip。知识库文件安装可离线完成；缺少 Obsidian 时需要联网下载。没有 Python 的 Agent 可直接按[文件工具方案](references/no-python.md)完成，不必额外安装依赖。
 
 ```sh
 git clone https://github.com/hanyh56/jianghushuo-kb-setup.git
 cd jianghushuo-kb-setup
+python3 scripts/desktop.py doctor
+python3 scripts/desktop.py install
 ```
 
-## 会安装什么
-
-```text
-个人知识库/
-├── 开始这里.md
-├── 知识资产工作台.md
-├── AGENTS.md
-├── 00-灵感与收件箱/
-├── 01-Projects-当前任务/
-├── 02-Areas-长期领域/
-├── 03-Resources-参考资料/
-├── 04-Archive-归档/
-├── 05-Skills-经验复利/
-└── 90-系统/
-    ├── 维护与AI协作规则.md
-    ├── Agent接入说明.md
-    ├── 模板/                    # 灵感、项目、知识卡、经验工作流、每日进度
-    └── 知识库看板.base          # 可选的 Obsidian Bases 视图
-```
-
-平时从真实问题进入：灵感随手记，项目写实际动作和下一步，方法复用后再补证据。本人原话、外部观点、推测和 AI 建议分别记录。
-
-`05-Skills-经验复利/` 保存经验笔记，安装它不会自动把每篇笔记注册成 Agent 技能。
-
-## 手动安装知识库
-
-需要 Python 3.8 或更高版本，只使用标准库，无需 pip、账号或网络。把下面的路径替换成你的实际保存位置：
+确认宿主后，下面二选一；其他宿主用 `--skills-dir "它实际读取的目录"`：
 
 ```sh
-python3 scripts/install.py --vault "/你的保存目录/个人知识库" --dry-run
-python3 scripts/install.py --vault "/你的保存目录/个人知识库"
-python3 scripts/install.py --vault "/你的保存目录/个人知识库" --check
+python3 scripts/install.py --agent codex
+python3 scripts/install.py --agent claude
 ```
 
-Windows 可把 `python3` 换成 `py -3`。没有 Python 时，也可以让 Agent 按相对路径复制 `assets/vault/` 中缺失的文件。
-
-如果你的宿主支持某个项目指令文件，可追加实际入口路径：
+自定义知识库位置追加 `--vault "实际路径"`。Windows 可使用 `py -3`。
 
 ```sh
-python3 scripts/install.py --vault "/你的保存目录/个人知识库" --agent-file "/你的Agent工作区/AGENTS.md"
+python3 scripts/desktop.py open --vault "实际知识库路径"
+python3 scripts/install.py --vault "实际知识库路径" --skills-dir "实际技能目录" --check
 ```
 
-`--agent-file` 也可指向宿主实际读取的 `CLAUDE.md` 等 UTF-8 指令文件；不要猜测不支持的配置位置。它只追加有标记的入口，保留原有内容。要检查接入，给 `--check` 命令传入相同的 `--agent-file`。
+首次打开会进入 Vault 管理器，选择“打开文件夹作为仓库”，选中输出的准确目录，然后再运行 `open`。执行 skill 时，这一步由具备桌面工具的 Agent 代操作；系统必须本人确认、或者 Agent 没有桌面控制能力时，才需要本人完成该步骤。
 
-## 已有内容怎么处理
+## 已有内容与升级
 
-安装器只添加缺失文件。重复安装不会追加重复入口；内容不同的同名文件保留并列入 `conflicts`，由 Agent 读原文后合并。安装不搬迁旧笔记，不修改 `.obsidian` 设置，也不创建自动同步或定时任务。
+用户笔记保留，同名不同内容会报告冲突。旧版原封未动的包内模板可按已知校验值备份升级；改过的笔记需要先读再合并。Obsidian 配置只更新本包需要的字段，原文件逐字节备份；主题、窗口布局和其他插件设置保留。
 
-安装完成后，要让 Agent **实际读一次**知识资产工作台和协作规则。当前会话能访问、其他会话自动加载、方法产生效果，需要分别验证。
+重复运行不会重复写入口、制造测试笔记或重新安装已有 Obsidian。不自动搬迁旧笔记、上传全库、恢复同步或创建定时任务。
 
-## 验证范围
+## 环境边界和验证
 
-已在本地 macOS / Python 3.9 环境验证：换目录解压安装、中文和空格路径、重复安装、已有指令逐字节保留、文件冲突保护、缺失文件修复、静态链接和符号链接冲突拦截。
+完整本地体验需要持久文件、桌面系统和相应操作权限。远程容器可搭好文件层，但不能替用户本机安装或打开应用；纯聊天窗口不能创建本地文件。Agent 会明确报告还缺的实际能力，不能把这些阶段标成完成。
 
-其他操作系统和各 Agent 产品的自动发现机制尚未逐一实测；核心文件为通用 Markdown，安装器不依赖特定 Agent API。
+运行自动检查：
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+维护者修改 `assets/vault/` 后，先运行 `python3 scripts/build_manifest.py` 更新无 Python 安装用的文件清单，再运行测试。
+
+仓库包含 macOS、Windows、Linux 的测试工作流。自动检查覆盖安装、重复执行、配置备份、旧版模板升级、用户文件保护、持久入口、下载校验和首次 Vault 登记状态。应用安装器的真人/桌面交互与不同产品的新会话发现机制，按实际环境分别验收。
+
+更多接入细节：[Agent 宿主](references/agent-hosts.md) · [Obsidian 桌面流程及官方来源](references/obsidian-desktop.md)。
