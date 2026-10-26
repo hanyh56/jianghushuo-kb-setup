@@ -5,6 +5,7 @@
 import argparse
 import hashlib
 import json
+import ntpath
 import os
 from pathlib import Path
 import platform
@@ -75,13 +76,14 @@ def doctor():
             for identifier, entry in entries.items():
                 if isinstance(entry, dict) and isinstance(entry.get("path"), str):
                     vaults.append({"id": identifier, "path": entry["path"]})
-        except (ValueError, AttributeError) as exc:
+        except (OSError, ValueError, AttributeError) as exc:
             error = str(exc)
     command = find_app(system, home)
     desktop = system in ("Darwin", "Windows") or bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
     return {"system": system, "architecture": platform.machine(), "installed": bool(command),
             "launch_command": command, "desktop_session_detected": desktop,
             "default_vault": str(home / "Documents/个人知识库"),
+            "vault_registry_path": str(registry),
             "registered_vaults": vaults, "registry_read_error": error,
             "official_download": DOWNLOAD_PAGE}
 
@@ -192,19 +194,48 @@ def install(info, directory):
     return {"status": status, "downloaded": str(package), "sha256_verified": True}
 
 
-def open_plan(info, vault):
+def same_vault_path(stored, requested, system):
+    """Compare Windows paths using Windows rules, including in cross-platform tests."""
+    if system == "Windows":
+        if os.name == "nt":
+            stored, requested = str(Path(stored).resolve()), str(Path(requested).resolve())
+        return ntpath.normcase(ntpath.normpath(str(stored))) == ntpath.normcase(ntpath.normpath(str(requested)))
+    return Path(stored).resolve() == Path(requested).resolve()
+
+
+def open_plan(info, vault, recover_vault_not_found=False):
     if not info["installed"]:
-        return {"status": "needs_installation", "official_download": DOWNLOAD_PAGE}
-    matched = next((item for item in info["registered_vaults"] if Path(item["path"]).resolve() == vault.resolve()), None)
+        return {"status": "needs_installation", "complete": False, "official_download": DOWNLOAD_PAGE}
+    if not info.get("desktop_session_detected", True):
+        return {"status": "needs_user_desktop", "complete": False, "vault": str(vault)}
+    registry_error = info.get("registry_read_error")
+    matched = None if registry_error else next((item for item in info["registered_vaults"]
+        if same_vault_path(item["path"], vault, info.get("system", platform.system()))), None)
+    if recover_vault_not_found:
+        matched = None  # A previous URI failure invalidates the cached registration assumption.
     if matched:
         uri = "obsidian://open?" + urllib.parse.urlencode({"vault": matched["id"], "file": "知识资产工作台.md"})
         status = "open_dispatched_ui_confirmation_required"
     else:
         uri = "obsidian://choose-vault"
-        status = "needs_vault_registration"
+        status = "needs_registry_check" if registry_error else "needs_vault_registration"
     return {"status": status, "command": info["launch_command"] + [uri],
+            "complete": False, "workbench_visible": "not_verified",
+            "registered": True if matched else (None if registry_error or recover_vault_not_found else False),
+            "vault_registry_path": info.get("vault_registry_path"), "registry_read_error": registry_error,
+            "recovering_vault_not_found": recover_vault_not_found,
             "vault": str(vault), "folder_to_select": None if matched else str(vault),
-            "next": "Confirm the workbench is visible" if matched else "Open folder as vault, select folder_to_select, then rerun open"}
+            "next": "Confirm the workbench is visible" if matched else "Dismiss any error, choose Open folder as vault / 打开本地仓库, select folder_to_select, then rerun open",
+            "registration_method": "existing_vault_id" if matched else "vault_manager_folder_picker"}
+
+
+def dispatch(info, plan):
+    """Dispatch only a planned action; a successful launch never proves GUI completion."""
+    if plan.get("command"):
+        if info["system"] == "Darwin":
+            run(plan["command"], timeout=30)
+        else:
+            subprocess.Popen(plan["command"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def main():
@@ -213,7 +244,10 @@ def main():
     parser.add_argument("--vault")
     parser.add_argument("--download-dir", help="Default: ~/Downloads/Obsidian-knowledge-base-setup")
     parser.add_argument("--dry-run", action="store_true", help="For open: show the exact launch plan without opening the app")
+    parser.add_argument("--recover-vault-not-found", action="store_true", help="For open: recover a failed URI by opening the vault manager; never repeat open?path=")
     args = parser.parse_args()
+    if args.recover_vault_not_found and args.action != "open":
+        raise ValueError("--recover-vault-not-found requires open")
     info = doctor()
     if args.action == "doctor":
         result = info
@@ -228,12 +262,9 @@ def main():
         vault = Path(args.vault).expanduser().resolve()
         if not (vault / "知识资产工作台.md").is_file():
             raise ValueError("Workbench not found in the selected vault")
-        result = open_plan(info, vault)
-        if not args.dry_run and result.get("command"):
-            if info["system"] == "Darwin":
-                run(result["command"], timeout=30)
-            else:
-                subprocess.Popen(result["command"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        result = open_plan(info, vault, args.recover_vault_not_found)
+        if not args.dry_run:
+            dispatch(info, result)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

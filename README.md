@@ -6,7 +6,9 @@
 
 ## 给 Agent 这一句话
 
-> 请按 https://raw.githubusercontent.com/hanyh56/jianghushuo-kb-setup/main/INSTALL.md 完整安装这套知识库，包括检查和安装 Obsidian、搭建目录与模板、配置后续 Agent 入口、打开工作台并验证读写。已有内容保留。
+> 请安装并执行这个 skill：https://raw.githubusercontent.com/hanyh56/jianghushuo-kb-setup/main/INSTALL.md
+
+获取完整包、安装并启用 skill、安装 Obsidian、建库、首次登记、报错恢复和验收，均由 skill 内部定义。安装后只说“使用 jianghushuo-kb-setup”即可，不需要另贴要求清单。
 
 具备链接读取、文件下载和本机执行能力的 Agent 可获取完整仓库并执行。没有现有库和指定路径时，默认建在当前用户的 `Documents/个人知识库`，不要求你先设计分类或填写安装参数。
 
@@ -23,13 +25,13 @@
 3. 在「已安装」中确认 `jianghushuo-kb-setup` 已启用。若当前版本不接受 GitHub ZIP 的外层目录，将解压后的完整技能目录重新打包再上传；保留全部配套文件。
 4. 输入：
 
-   > 使用 jianghushuo-kb-setup，完整安装我的 Obsidian 个人知识库，搭好目录、模板和工作台，配置后续使用入口，并完成读写验收。已有内容保留。
+   > 使用 jianghushuo-kb-setup。
 
 这里确认的是官方提供自定义技能导入方式；维护者尚未在实际 WorkBuddy 客户端完成端到端验收。导入成功、知识库搭建、应用打开和后续会话入口需按实际结果分别确认。
 
 ## 一次安装会完成什么
 
-1. **检查环境**：识别系统、Python、Obsidian、已登记的库和当前 Agent 的真实技能目录。
+1. **准备并安装 skill**：获取完整包，识别系统、Python、Obsidian、已登记的库和真实技能目录，安装当前 skill 并核实宿主启用状态。
 2. **安装 Obsidian**：已有则复用；未安装时匹配官方稳定版与系统架构，下载并验证 SHA-256，再安装或完成官方安装器。
 3. **搭建知识库**：建立六类目录、工作台、五类模板和首次使用入口。
 4. **配置界面**：启用内置模板、日记和 Bases；新笔记进入收件箱，移动文件更新链接。已有相关配置先备份，无关设置保留。
@@ -84,30 +86,42 @@
 git clone https://github.com/hanyh56/jianghushuo-kb-setup.git
 cd jianghushuo-kb-setup
 python3 scripts/desktop.py doctor
-python3 scripts/desktop.py install
 ```
 
 确认宿主后，下面二选一；其他宿主用 `--skills-dir "它实际读取的目录"`：
 
 ```sh
-python3 scripts/install.py --agent codex
-python3 scripts/install.py --agent claude
+python3 scripts/setup.py --agent codex
+python3 scripts/setup.py --agent claude
 ```
 
 自定义知识库位置追加 `--vault "实际路径"`。Windows 可使用 `py -3`。
 
 ```sh
-python3 scripts/desktop.py open --vault "实际知识库路径"
-python3 scripts/install.py --vault "实际知识库路径" --skills-dir "实际技能目录" --check
+python3 scripts/setup.py --vault "实际知识库路径" --skills-dir "实际技能目录" --check
 ```
 
-首次打开会进入 Vault 管理器，选择“打开文件夹作为仓库”，选中输出的准确目录，然后再运行 `open`。执行 skill 时，这一步由具备桌面工具的 Agent 代操作；系统必须本人确认、或者 Agent 没有桌面控制能力时，才需要本人完成该步骤。
+统一入口会安装当前 skill、搭建文件和接入、检测或安装应用，再按登记状态打开管理器或工作台。读取返回的 `pending_actions`，由 Agent 继续处理；退出码为 0 不等于整个任务完成。
+
+首次打开会进入 Vault 管理器，选择“打开文件夹作为仓库 / 打开本地仓库”，选中输出的准确现有目录，再以相同参数重跑正常 `setup.py`。具备桌面工具的 Agent 代操作；系统必须本人确认或没有桌面控制能力时，只交接对应步骤。
+
+### 修复 Vault not found
+
+该错误表示本次 URI 未找到对应库。`open?path=…` 会在已知库里查找笔记，不能登记新库。不要重建已有文件夹；关闭错误框后运行：
+
+```sh
+python3 scripts/desktop.py open --vault "实际知识库路径" --recover-vault-not-found
+```
+
+在管理器中选择准确的现有知识库文件夹，然后不带恢复标记重跑正常 `setup.py`。Windows 路径匹配已处理大小写与正反斜杠；登记后使用 Vault ID 与编码后的工作台文件名打开。完整恢复和界面验收由 [SKILL.md](SKILL.md) 定义。
 
 ## 已有内容与升级
 
 用户笔记保留，同名不同内容会报告冲突。旧版原封未动的包内模板可按已知校验值备份升级；改过的笔记需要先读再合并。Obsidian 配置只更新本包需要的字段，原文件逐字节备份；主题、窗口布局和其他插件设置保留。
 
 重复运行不会重复写入口、制造测试笔记或重新安装已有 Obsidian。不自动搬迁旧笔记、上传全库、恢复同步或创建定时任务。
+
+更新安装 skill 时，取得新版完整包，从新版目录运行 `setup.py` 并追加 `--update-skill`；同名安装 skill 的旧文件会逐字节备份。复用原知识库与宿主目录，不用新版模板覆盖用户修改。
 
 ## 环境边界和验证
 
@@ -121,6 +135,6 @@ python3 -m unittest discover -s tests -v
 
 维护者修改 `assets/vault/` 后，先运行 `python3 scripts/build_manifest.py` 更新无 Python 安装用的文件清单，再运行测试。
 
-仓库包含 macOS、Windows、Linux 的测试工作流。自动检查覆盖安装、重复执行、配置备份、旧版模板升级、用户文件保护、持久入口、下载校验和首次 Vault 登记状态。应用安装器的真人/桌面交互与不同产品的新会话发现机制，按实际环境分别验收。
+仓库包含 macOS、Windows、Linux 的测试工作流。自动检查覆盖完整安装与恢复流程、只读检查、skill 更新备份、用户文件保护、持久入口、下载校验、首次登记、Windows 中文路径与大小写/斜杠、失败后返回管理器，以及安装器启动不被当作完成。应用安装器的真人/桌面交互与不同产品的新会话发现机制，按实际环境分别验收；自动检查不证明 Windows 实际桌面操作已通过。
 
 更多接入细节：[Agent 宿主](references/agent-hosts.md) · [Obsidian 桌面流程及官方来源](references/obsidian-desktop.md)。

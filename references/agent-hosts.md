@@ -10,7 +10,7 @@
 | 其他支持 Agent Skills 的本地宿主 | 读取其已配置目录或官方说明 | `--skills-dir "真实路径"` |
 | 只有项目指令文件的宿主 | 实际读取的 `AGENTS.md`、`CLAUDE.md` 或其他 UTF-8 文件 | `--agent-file "真实路径"` |
 
-`--skills-dir` 优先于 `--agent` 的标准目录。安装器只生成一个 `personal-kb` 运行 skill，不复制用户笔记到 skills 目录，不把本库经验笔记自动注册为可执行 skill。
+`--skills-dir` 优先于 `--agent` 的标准目录。完整入口 `setup.py` 安装当前 `jianghushuo-kb-setup` 包并调用文件层 `install.py` 生成绑定实际库路径的 `personal-kb`。不复制用户笔记到 skills 目录，不把本库经验笔记自动注册为可执行 skill。若当前安装 skill 已从正确目录加载，复用，不额外复制。
 
 当前宿主限制了库目录的访问时，使用其支持的添加目录或权限流程；skills 被发现不等于已获得文件访问权。只改本次需要的入口，不替换全局规则，不把含私人路径的配置提交到公共仓库。
 
