@@ -86,7 +86,7 @@ def check_links(vault, relatives):
             continue
         content = (ASSETS / relative).read_text(encoding="utf-8-sig")
         for raw in re.findall(r"\[\[([^\]]+)\]\]", content):
-            target = raw.split("|", 1)[0].split("#", 1)[0].strip()
+            target = raw.replace("\\|", "|").split("|", 1)[0].split("#", 1)[0].strip()
             if not target:
                 continue
             checked += 1

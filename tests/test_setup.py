@@ -258,6 +258,13 @@ class PackageTests(unittest.TestCase):
                     continue
                 self.assertTrue((path.parent / target.split("#", 1)[0]).exists(), str(path) + " -> " + target)
 
+    def test_wikilink_aliases_do_not_break_markdown_tables(self):
+        for path in (ROOT / "assets/vault").rglob("*.md"):
+            for line in path.read_text(encoding="utf-8").splitlines():
+                if line.startswith("|"):
+                    for target in re.findall(r"\[\[([^\]]+)\]\]", line):
+                        self.assertIsNone(re.search(r"(?<!\\)\|", target), str(path) + ": alias pipe must be escaped inside a table")
+
 
 if __name__ == "__main__":
     unittest.main()
