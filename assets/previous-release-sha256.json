@@ -1,0 +1,19 @@
+{
+  "vault": {
+    "90-系统/Agent接入说明.md": [
+      "63a1a3b295b6cbad356669b5d09474da53909016de0ba939576542b5486bf136"
+    ],
+    "90-系统/维护与AI协作规则.md": [
+      "c9b21f974766fc4d68b38e57c4c96675ac9ee5ec09a125aa1928b6f39dcb635c"
+    ],
+    "AGENTS.md": [
+      "e9e3e15d865def83055da3ed8dc423d303e62489ec206ac16dc5206d88b8865f"
+    ],
+    "第一次使用.md": [
+      "387695484676dc89b1338382be6c897ee62312a2f6ef2b9bf4cb937f75a07138"
+    ]
+  },
+  "runtime_skill": [
+    "742d3047443ae7a6f3cd52ad2b3905e31dd8d7105c9a7f7bcb2538a48de4849a"
+  ]
+}

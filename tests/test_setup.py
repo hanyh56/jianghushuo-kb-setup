@@ -249,7 +249,8 @@ class DesktopTests(unittest.TestCase):
 class PackageTests(unittest.TestCase):
     def test_documentation_and_vault_manifest_are_complete(self):
         manifest = json.loads((ROOT / "assets/vault-manifest.json").read_text(encoding="utf-8"))
-        actual = digest_tree(ROOT / "assets/vault")
+        actual = {name: digest for name, digest in digest_tree(ROOT / "assets/vault").items()
+                  if ".jhs-backup-" not in name}
         self.assertEqual({item["path"]: item["sha256"] for item in manifest}, actual)
         for path in [ROOT / "SKILL.md", ROOT / "README.md"] + list((ROOT / "references").glob("*.md")):
             content = path.read_text(encoding="utf-8")

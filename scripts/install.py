@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 import sys
 
-from setup_support import apply_plan, roundtrip, runtime_plan, settings_plan
+from setup_support import apply_plan, is_package_path, known_vault_revision, roundtrip, runtime_plan, settings_plan
 
 for stream in (sys.stdout, sys.stderr):
     if hasattr(stream, "reconfigure"):
@@ -112,7 +112,8 @@ def main():
         raise ValueError("Vault is not a directory: " + str(vault))
     if not ASSETS.is_dir():
         raise ValueError("Missing assets/vault; copy the entire skill folder")
-    assets = sorted(path for path in ASSETS.rglob("*") if path.is_file())
+    assets = sorted(path for path in ASSETS.rglob("*")
+                    if path.is_file() and is_package_path(path.relative_to(ASSETS)))
     if not assets:
         raise ValueError("Empty assets/vault")
     legacy_file = SKILL_ROOT / "assets/legacy-v1-sha256.json"
@@ -131,7 +132,8 @@ def main():
         else:
             target.read_text(encoding="utf-8-sig")
             old = target.read_bytes()
-            if hashlib.sha256(old).hexdigest() == legacy.get(relative.as_posix()):
+            if (hashlib.sha256(old).hexdigest() == legacy.get(relative.as_posix())
+                    or known_vault_revision(old, relative, SKILL_ROOT)):
                 plans.append({"path": target, "old": old, "data": source.read_bytes(), "kind": "template_upgrade"})
             else:
                 conflicts.append(relative)

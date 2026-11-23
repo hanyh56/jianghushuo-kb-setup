@@ -1,6 +1,6 @@
 # 安装并执行姜胡说知识库 Skill
 
-用户把本地址交给 Agent，就是请求安装并执行本 skill。完整获取、宿主安装、Obsidian 安装、建库、首次登记、报错恢复与验收要求都定义在根目录 `SKILL.md`，不需要用户另外粘贴执行清单。
+用户把本地址交给 Agent，就是请求安装并执行本 skill。完整获取、宿主安装、Obsidian 安装、建库、首次登记、报错恢复、验收及成功后直接接续的“我是谁访谈”都定义在根目录 `SKILL.md`，不需要用户另外粘贴执行清单。访谈一次一题并等待，已有档案先读再复用；无交互环境保存待开始进度，由下一次可交互知识库入口接续。
 
 - 仓库：https://github.com/hanyh56/jianghushuo-kb-setup
 - 完整 ZIP：https://github.com/hanyh56/jianghushuo-kb-setup/archive/refs/heads/main.zip

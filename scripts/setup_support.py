@@ -15,8 +15,25 @@ SETTINGS = {
 CORE = ["file-explorer", "global-search", "switcher", "command-palette", "backlink", "properties", "templates", "daily-notes", "bases"]
 
 
+def is_package_path(relative):
+    """Backups in an installed skill are not payload for a new vault or package."""
+    return (not any(part in {".git", "__pycache__", ".DS_Store", ".venv"}
+                    or ".jhs-backup-" in part for part in relative.parts)
+            and relative.suffix != ".pyc")
+
+
 def encoded_json(value):
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
+def previous_revisions(skill_root):
+    path = skill_root / "assets/previous-release-sha256.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def known_vault_revision(data, relative, skill_root):
+    known = previous_revisions(skill_root).get("vault", {}).get(relative.as_posix(), [])
+    return hashlib.sha256(data).hexdigest() in known
 
 
 def settings_plan(vault, destination):
@@ -53,7 +70,12 @@ def runtime_plan(vault, skills_dir, skill_root, destination):
     data = template.replace("{{VAULT_PATH_JSON}}", json.dumps(str(vault), ensure_ascii=False)).encode("utf-8")
     old = path.read_bytes() if path.exists() else None
     if old is not None and old != data:
-        raise ValueError("personal-kb already exists with different content; preserve it and reconcile its vault path: " + str(path))
+        # Only upgrade an exact bundled predecessor bound to this same vault.
+        # Customized entries and entries for another vault remain conflicts.
+        normalized = old.decode("utf-8-sig").replace(json.dumps(str(vault), ensure_ascii=False), "{{VAULT_PATH_JSON}}")
+        digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+        if digest not in previous_revisions(skill_root).get("runtime_skill", []):
+            raise ValueError("personal-kb already exists with different content; preserve it and reconcile its vault path: " + str(path))
     return {"path": path, "old": old, "data": data, "kind": "runtime_skill"}
 
 

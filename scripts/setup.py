@@ -11,7 +11,7 @@ import sys
 
 import desktop
 import install
-from setup_support import apply_plan
+from setup_support import apply_plan, is_package_path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_NAME = "jianghushuo-kb-setup"
@@ -22,6 +22,7 @@ def package_files(root):
     required = ["SKILL.md", "INSTALL.md", "scripts/setup.py", "scripts/install.py",
                 "scripts/desktop.py", "scripts/setup_support.py", "assets/runtime-skill.md",
                 "assets/legacy-v1-sha256.json", "assets/vault-manifest.json",
+                "assets/previous-release-sha256.json", "assets/vault/90-系统/我是谁访谈规则.md",
                 "references/agent-hosts.md", "references/obsidian-desktop.md", "references/no-python.md"]
     for relative in required:
         if not (root / relative).is_file():
@@ -37,7 +38,7 @@ def package_files(root):
     files = []
     for path in sorted(root.rglob("*")):
         relative = path.relative_to(root)
-        if any(part in {".git", "__pycache__", ".DS_Store", ".venv"} or ".jhs-backup-" in part for part in relative.parts) or path.suffix == ".pyc":
+        if not is_package_path(relative):
             continue
         if path.is_symlink():
             raise ValueError("Unexpected symlink in downloaded skill: " + str(path))
@@ -141,6 +142,10 @@ def setup(vault, skills_dir=None, agent_file=None, download_dir=None, check=Fals
                         "detail": "Dismiss Vault not found if present. Open folder as vault / 打开本地仓库. Select this exact folder, then rerun setup without --recover-vault-not-found"})
     pending.append({"action": "verify_host_and_workbench_in_ui", "vault": str(vault),
                     "detail": "Verify the skill is enabled, the correct vault/workbench, folders, templates and Bases. Record actual UI evidence; command dispatch is insufficient"})
+    pending.append({"action": "start_or_resume_identity_interview_after_acceptance", "vault": str(vault),
+                    "requires": "All installation/host/UI checks and actual write/read probe have passed; check-only is insufficient",
+                    "rules": str(vault / "90-系统/我是谁访谈规则.md"),
+                    "detail": "Read the existing profile and progress first. Interactive: ask one unanswered question and wait; completed: reuse; paused/skipped: wait for user to resume. Noninteractive: save pending interview and read back. Never start or report success while acceptance is blocked"})
     return {"status": "needs_actions", "complete": False, "source": SOURCE_URL,
             "setup_skill": {"path": str(target) if target else None, "files_installed": skill_ready,
                             "host_enabled": "requires_host_verification"},

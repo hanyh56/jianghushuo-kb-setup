@@ -45,7 +45,11 @@
   },
   {
     "path": "90-系统/Agent接入说明.md",
-    "sha256": "63a1a3b295b6cbad356669b5d09474da53909016de0ba939576542b5486bf136"
+    "sha256": "0639aca02fb5b5c6b8a20aa319624cb0d36908fc8ba00fdb10865acc5221d7dc"
+  },
+  {
+    "path": "90-系统/我是谁访谈规则.md",
+    "sha256": "23f27b20f467df9348f798edbc7dcc01116ded1455a58666d7a7e49967f850de"
   },
   {
     "path": "90-系统/方案说明.md",
@@ -81,11 +85,11 @@
   },
   {
     "path": "90-系统/维护与AI协作规则.md",
-    "sha256": "c9b21f974766fc4d68b38e57c4c96675ac9ee5ec09a125aa1928b6f39dcb635c"
+    "sha256": "892a59160c20d89e12d3d67ac6e0f7a2f94a58ae22f43889b1ddf87cdd96d5d1"
   },
   {
     "path": "AGENTS.md",
-    "sha256": "e9e3e15d865def83055da3ed8dc423d303e62489ec206ac16dc5206d88b8865f"
+    "sha256": "d758a8aff76ced61dffbdcbcb35b1212963d3422bdfb2d1741d1f9b09491b2c7"
   },
   {
     "path": "开始这里.md",
@@ -97,6 +101,6 @@
   },
   {
     "path": "第一次使用.md",
-    "sha256": "387695484676dc89b1338382be6c897ee62312a2f6ef2b9bf4cb937f75a07138"
+    "sha256": "bac757e28f265247ab9036ac4ed8eae01bda699dff6f318780a53b47461c278e"
   }
 ]
