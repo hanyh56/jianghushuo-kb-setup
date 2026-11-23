@@ -145,6 +145,10 @@ def setup(vault, skills_dir=None, agent_file=None, download_dir=None, check=Fals
                          if instruction_fallback else "Verify the skill is enabled")
     pending.append({"action": "verify_host_and_workbench_in_ui", "vault": str(vault),
                     "detail": host_verification + ", the correct vault/workbench, folders, templates and Bases. Record actual UI evidence; command dispatch is insufficient"})
+    pending.append({"action": "explain_vault_folders_after_acceptance", "vault": str(vault),
+                    "requires": "Actual installation acceptance has passed; no false success while blocked",
+                    "guide": str(vault / "开始这里.md"),
+                    "detail": "Read the folder guide and actual paths/migrations. On first interactive success, briefly explain every created folder, then ask the interview question in the same reply and wait. Repeat/update: explain changes only; noninteractive: retain the written guide"})
     pending.append({"action": "start_or_resume_identity_interview_after_acceptance", "vault": str(vault),
                     "requires": "All installation/host/UI checks and actual write/read probe have passed; check-only is insufficient",
                     "rules": str(vault / "90-系统/我是谁访谈规则.md"),
