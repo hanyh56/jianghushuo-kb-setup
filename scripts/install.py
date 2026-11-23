@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 import sys
 
-from setup_support import apply_plan, is_package_path, known_vault_revision, roundtrip, runtime_plan, settings_plan
+from setup_support import LEGACY_DIRECTORY_NAMES, apply_plan, known_vault_revision, roundtrip, runtime_plan, settings_plan, vault_payload
 
 for stream in (sys.stdout, sys.stderr):
     if hasattr(stream, "reconfigure"):
@@ -110,10 +110,13 @@ def main():
     vault = absolute(args.vault).resolve() if args.vault else Path.home() / "Documents" / "个人知识库"
     if vault.exists() and not vault.is_dir():
         raise ValueError("Vault is not a directory: " + str(vault))
+    old_directories = [name for name in LEGACY_DIRECTORY_NAMES if (vault / name).exists()]
+    if old_directories:
+        raise ValueError("Existing vault uses previous directory names: " + ", ".join(old_directories)
+                         + ". Preserve its notes; read references/directory-renames.md and the vault migration map before reconciling names. No new directory tree has been created.")
     if not ASSETS.is_dir():
         raise ValueError("Missing assets/vault; copy the entire skill folder")
-    assets = sorted(path for path in ASSETS.rglob("*")
-                    if path.is_file() and is_package_path(path.relative_to(ASSETS)))
+    assets = vault_payload(SKILL_ROOT)
     if not assets:
         raise ValueError("Empty assets/vault")
     legacy_file = SKILL_ROOT / "assets/legacy-v1-sha256.json"

@@ -77,7 +77,7 @@ class SetupTests(unittest.TestCase):
         merged = json.loads((directory / "app.json").read_text(encoding="utf-8"))
         self.assertEqual(merged["theme"], "custom")
         self.assertTrue(merged["alwaysUpdateLinks"])
-        self.assertEqual(merged["newFileFolderPath"], "00-灵感与收件箱")
+        self.assertEqual(merged["newFileFolderPath"], "00-灵感库")
         backup = next(directory.glob("app.json.jhs-backup-*"))
         self.assertEqual(backup.read_bytes(), original)
         plugins = json.loads((directory / "core-plugins.json").read_text(encoding="utf-8"))
@@ -137,6 +137,21 @@ class SetupTests(unittest.TestCase):
         self.run_install(expected=1)
         self.assertEqual(digest_tree(self.base), before)
 
+    def test_previous_directory_names_stop_before_creating_duplicate_libraries(self):
+        for name in ("00-灵感与收件箱", "01-Projects(项目)"):
+            with self.subTest(name=name):
+                path = self.vault / name / "本人笔记.md"
+                path.parent.mkdir(parents=True)
+                path.write_text("真实笔记保留。", encoding="utf-8")
+                before = digest_tree(self.base)
+                report = self.run_install(expected=1)
+                self.assertIn("previous directory names", report["error"])
+                self.assertEqual(digest_tree(self.base), before)
+                self.assertFalse((self.vault / "00-灵感库").exists())
+                self.assertFalse(self.skills.exists())
+                path.unlink()
+                path.parent.rmdir()
+
     def test_existing_instruction_bytes_preserved(self):
         path = self.base / "CLAUDE.md"
         original = b'\xef\xbb\xbf# Existing rules\r\nKeep all of this.\r\n'
@@ -148,7 +163,7 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(), first)
 
     def test_probe_collision_does_not_delete_existing_file(self):
-        folder = self.vault / "00-灵感与收件箱"
+        folder = self.vault / "00-灵感库"
         folder.mkdir(parents=True)
         path = folder / "_安装验收-fixed.md"
         path.write_text("existing", encoding="utf-8")
@@ -249,8 +264,8 @@ class DesktopTests(unittest.TestCase):
 class PackageTests(unittest.TestCase):
     def test_documentation_and_vault_manifest_are_complete(self):
         manifest = json.loads((ROOT / "assets/vault-manifest.json").read_text(encoding="utf-8"))
-        actual = {name: digest for name, digest in digest_tree(ROOT / "assets/vault").items()
-                  if ".jhs-backup-" not in name}
+        actual = {path.relative_to(ROOT / "assets/vault").as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in setup_support.vault_payload(ROOT)}
         self.assertEqual({item["path"]: item["sha256"] for item in manifest}, actual)
         for path in [ROOT / "SKILL.md", ROOT / "README.md"] + list((ROOT / "references").glob("*.md")):
             content = path.read_text(encoding="utf-8")

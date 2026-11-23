@@ -8,11 +8,20 @@ import uuid
 
 
 SETTINGS = {
-    "app.json": {"alwaysUpdateLinks": True, "newFileLocation": "folder", "newFileFolderPath": "00-灵感与收件箱"},
+    "app.json": {"alwaysUpdateLinks": True, "newFileLocation": "folder", "newFileFolderPath": "00-灵感库"},
     "templates.json": {"folder": "90-系统/模板", "dateFormat": "YYYY-MM-DD", "timeFormat": "HH:mm"},
-    "daily-notes.json": {"folder": "02-Areas-长期领域/每日记录", "format": "YYYY-MM-DD", "template": "90-系统/模板/模板-每日进度"},
+    "daily-notes.json": {"folder": "02-资产库/每日记录", "format": "YYYY-MM-DD", "template": "90-系统/模板/模板-每日进度"},
 }
 CORE = ["file-explorer", "global-search", "switcher", "command-palette", "backlink", "properties", "templates", "daily-notes", "bases"]
+
+LEGACY_DIRECTORY_NAMES = {
+    "00-灵感与收件箱": "00-灵感库", "00-Inbox(灵感库)": "00-灵感库",
+    "01-Projects-当前任务": "01-项目库", "01-Projects(项目)": "01-项目库",
+    "02-Areas-长期领域": "02-资产库", "02-Areas(资产)": "02-资产库",
+    "03-Resources-参考资料": "03-资源库", "03-Resources(资源)": "03-资源库",
+    "04-Archive-归档": "04-归档库", "04-Archive(归档)": "04-归档库",
+    "05-Skills-经验复利": "05-技能库", "05-Skills(技能)": "05-技能库",
+}
 
 
 def is_package_path(relative):
@@ -20,6 +29,25 @@ def is_package_path(relative):
     return (not any(part in {".git", "__pycache__", ".DS_Store", ".venv"}
                     or ".jhs-backup-" in part for part in relative.parts)
             and relative.suffix != ".pyc")
+
+
+def vault_payload(skill_root):
+    """Only the verified manifest is installed; stale assets from an update are inert."""
+    assets = skill_root / "assets/vault"
+    manifest = json.loads((skill_root / "assets/vault-manifest.json").read_text(encoding="utf-8"))
+    paths, seen = [], set()
+    for item in manifest:
+        relative = Path(item["path"])
+        if relative.is_absolute() or ".." in relative.parts or relative in seen:
+            raise ValueError("Invalid or duplicate vault manifest path")
+        seen.add(relative)
+        path = assets / relative
+        if any((assets / Path(*relative.parts[:i])).is_symlink() for i in range(1, len(relative.parts) + 1)):
+            raise ValueError("Unexpected symlink in bundled vault: " + str(relative))
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item["sha256"]:
+            raise ValueError("Missing or damaged bundled vault file: " + str(relative))
+        paths.append(path)
+    return sorted(paths)
 
 
 def encoded_json(value):
@@ -117,7 +145,7 @@ def apply_plan(plan):
 
 def roundtrip(vault, destination):
     identifier = uuid.uuid4().hex
-    path = destination(vault, Path("00-灵感与收件箱") / ("_安装验收-" + identifier + ".md"))
+    path = destination(vault, Path("00-灵感库") / ("_安装验收-" + identifier + ".md"))
     content = "# 临时安装验收\n\n这是安装器生成的测试数据，不是本人的经历或项目。\n\n检索标记：" + identifier + "\n"
     created = False
     try:

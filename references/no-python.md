@@ -6,12 +6,12 @@
 
 1. 通过 Git、ZIP 或可读取仓库目录的连接器取得完整内容。文件清单在 `assets/vault-manifest.json`。保持所有中文相对路径，将 `assets/vault/` 的文件复制到实际 Vault，已有文件先比较，不覆盖用户修改。
 2. 按本机官方安装流程检测、下载并安装 Obsidian。已有则复用。下载页为 https://obsidian.md/download 。没有自动安装器的执行能力但有桌面工具时，直接操作官方图形安装器。
-3. 建立日记目录 `02-Areas-长期领域/每日记录/`。在库内 `.obsidian/` 合并以下设置；修改前保存旧文件原始字节，无关字段保留，格式无效时先修复或询问真实冲突，不盲目覆盖。
+3. 建立日记目录 `02-资产库/每日记录/`。在库内 `.obsidian/` 合并以下设置；修改前保存旧文件原始字节，无关字段保留，格式无效时先修复或询问真实冲突，不盲目覆盖。
 
 `app.json`：
 
 ```json
-{"alwaysUpdateLinks":true,"newFileLocation":"folder","newFileFolderPath":"00-灵感与收件箱"}
+{"alwaysUpdateLinks":true,"newFileLocation":"folder","newFileFolderPath":"00-灵感库"}
 ```
 
 `templates.json`：
@@ -23,7 +23,7 @@
 `daily-notes.json`：
 
 ```json
-{"folder":"02-Areas-长期领域/每日记录","format":"YYYY-MM-DD","template":"90-系统/模板/模板-每日进度"}
+{"folder":"02-资产库/每日记录","format":"YYYY-MM-DD","template":"90-系统/模板/模板-每日进度"}
 ```
 
 `core-plugins.json` 支持对象或字符串列表。保留现有插件，只启用/添加 `file-explorer`、`global-search`、`switcher`、`command-palette`、`backlink`、`properties`、`templates`、`daily-notes`、`bases`。缺失时创建只包含这些项的配置，不下载社区插件。

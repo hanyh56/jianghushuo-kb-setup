@@ -1,47 +1,47 @@
 [
   {
-    "path": "00-灵感与收件箱/00-收件箱入口.md",
+    "path": "00-灵感库/00-收件箱入口.md",
     "sha256": "a9556ce39eee9de3d0e71e0518aeac42d0e358e0af65d54c511b6f02364d1e6c"
   },
   {
-    "path": "01-Projects-当前任务/00-项目入口.md",
+    "path": "01-项目库/00-项目入口.md",
     "sha256": "e7dec925d087ac37e4b686780ee602df85de83b418db3e4f33b62acbecf4a2a7"
   },
   {
-    "path": "01-Projects-当前任务/待确认是否继续/00-待确认入口.md",
-    "sha256": "f1efb08c18789f585203a6aa4255784ef97528ab8166bb8f7674bbb8c749e390"
+    "path": "01-项目库/待确认是否继续/00-待确认入口.md",
+    "sha256": "ed6f858ab0ced9d7467e214a9831e40e0b68ac415fa6af8d356966c3f3dd34b1"
   },
   {
-    "path": "02-Areas-长期领域/00-领域入口.md",
+    "path": "02-资产库/00-领域入口.md",
     "sha256": "7f5f2bf653d0de0daca2ca4861234e7f627dc2b39dbf48b66d8df27e9641a193"
   },
   {
-    "path": "02-Areas-长期领域/每日记录/00-每日记录入口.md",
-    "sha256": "bb27224a28f348cb4d1b37c8fe29602d1644151e89650c52e2b7c80063776291"
+    "path": "02-资产库/每日记录/00-每日记录入口.md",
+    "sha256": "25f67dc00cdd31a88494d96991d33157d8523a375ed90f0b0a485f715b27f82c"
   },
   {
-    "path": "03-Resources-参考资料/00-资料入口.md",
-    "sha256": "8e1b6eee3ef39f61072e92c70243eddbe018e4a5b974951fdcdbdcfa5a8560c1"
+    "path": "03-资源库/00-资料入口.md",
+    "sha256": "e23e15f3c664f2d3d3c10600e95f876a94caa4a7bb220815c4353839bbae7a92"
   },
   {
-    "path": "03-Resources-参考资料/外部参考/00-外部参考入口.md",
-    "sha256": "4ad59b8a4f56bd77cb2fe16615b1517659a3c6e5a3ead399057ecfcda8a1e79d"
+    "path": "03-资源库/外部参考/00-外部参考入口.md",
+    "sha256": "e27a702fba2f226395906412181d674bdc3c4c9ec4c2317e0d2f44cf1263a240"
   },
   {
-    "path": "03-Resources-参考资料/本人原始记录/来源导入/00-来源入口.md",
-    "sha256": "ffbb682aeb65535ee7e75eb54ca26913d1b182ee3f5bc08bbc9558de5fea1ef2"
+    "path": "03-资源库/本人原始记录/来源导入/00-来源入口.md",
+    "sha256": "222b66fd50be63334a0099f4d87135d7629e0b5da54b8d396e2eefc5bb460690"
   },
   {
-    "path": "04-Archive-归档/00-归档入口.md",
+    "path": "04-归档库/00-归档入口.md",
     "sha256": "0ea4d1303ffb3351970664f1742a2115341667017f58bfea96272b17d6ee9814"
   },
   {
-    "path": "05-Skills-经验复利/00-经验入口.md",
-    "sha256": "2a5a25294b99ad05f004fbbe38f50dcfe90d7acc1881519d248b2025bc9ce6b1"
+    "path": "05-技能库/00-经验入口.md",
+    "sha256": "c7605a2f9499000e85d6ca2fc2eb7d1838347a7f8ae04b4de44e0d1429a4f8dc"
   },
   {
-    "path": "05-Skills-经验复利/待验证方法/00-待验证入口.md",
-    "sha256": "90b44fe18cc2c8d8c5a5088fa04525729b3fb7d940786f73c87a509d139d9e73"
+    "path": "05-技能库/待验证方法/00-待验证入口.md",
+    "sha256": "01912bae47e87fada444bc5e083a500c94ee90a56116f4a4ad18f64db428ec1f"
   },
   {
     "path": "90-系统/Agent接入说明.md",
@@ -49,7 +49,7 @@
   },
   {
     "path": "90-系统/我是谁访谈规则.md",
-    "sha256": "23f27b20f467df9348f798edbc7dcc01116ded1455a58666d7a7e49967f850de"
+    "sha256": "ecdd599575a7bf22b737e652fe365d59475975f728a2969e391ea4e188b19d0b"
   },
   {
     "path": "90-系统/方案说明.md",
@@ -77,11 +77,11 @@
   },
   {
     "path": "90-系统/模板使用说明.md",
-    "sha256": "b450bc51ad8ac527e30587100a679fc8f8900001248fcdaa7e7459457da8bd65"
+    "sha256": "a96d676b4b7069275d7cf7fe49134775246ff94fc1439002ef993e736eccc570"
   },
   {
     "path": "90-系统/知识库看板.base",
-    "sha256": "b6531cc50678df00181f3acf638d2f7e5dad4f68a547dbe4485a2ef98893c160"
+    "sha256": "9f79a0ba1a505337e46abc299507ec200b6f0365a4f7db382df176e8a1126995"
   },
   {
     "path": "90-系统/维护与AI协作规则.md",
@@ -89,15 +89,15 @@
   },
   {
     "path": "AGENTS.md",
-    "sha256": "d758a8aff76ced61dffbdcbcb35b1212963d3422bdfb2d1741d1f9b09491b2c7"
+    "sha256": "6114002c26ada55c48d15bd66a5335d1d7b714c68d40e8bc7ca899fa983e336c"
   },
   {
     "path": "开始这里.md",
-    "sha256": "0570858ebadb2123921af023083fdc875f6fc8570f5e33b25fcbea1ad255f672"
+    "sha256": "d6fb9eecb99dff6570e272cfe3251cadf3eb9fd896595e97532b42ec872a9d86"
   },
   {
     "path": "知识资产工作台.md",
-    "sha256": "08d6c3f506b2d31b4471edc0649d5dca9c1282c732216487f119d89b7aacd973"
+    "sha256": "43f53385ca11376af09879aaeb4b0392b16732f5087932068dbcd694c399f4bf"
   },
   {
     "path": "第一次使用.md",

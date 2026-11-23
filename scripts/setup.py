@@ -3,7 +3,6 @@
 """Run the complete setup and return the remaining desktop actions, not a false success."""
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -11,7 +10,7 @@ import sys
 
 import desktop
 import install
-from setup_support import apply_plan, is_package_path
+from setup_support import apply_plan, is_package_path, vault_payload
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_NAME = "jianghushuo-kb-setup"
@@ -23,22 +22,17 @@ def package_files(root):
                 "scripts/desktop.py", "scripts/setup_support.py", "assets/runtime-skill.md",
                 "assets/legacy-v1-sha256.json", "assets/vault-manifest.json",
                 "assets/previous-release-sha256.json", "assets/vault/90-系统/我是谁访谈规则.md",
-                "references/agent-hosts.md", "references/obsidian-desktop.md", "references/no-python.md"]
+                "references/agent-hosts.md", "references/obsidian-desktop.md", "references/no-python.md", "references/directory-renames.md"]
     for relative in required:
         if not (root / relative).is_file():
             raise ValueError("Incomplete skill package; download the complete ZIP from " + SOURCE_URL + ": missing " + relative)
-    manifest = json.loads((root / "assets/vault-manifest.json").read_text(encoding="utf-8"))
-    for item in manifest:
-        relative = Path(item["path"])
-        if relative.is_absolute() or ".." in relative.parts:
-            raise ValueError("Invalid vault manifest path")
-        path = root / "assets/vault" / relative
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item["sha256"]:
-            raise ValueError("Missing or damaged bundled vault file: " + str(relative))
+    managed_vault_files = {path.relative_to(root) for path in vault_payload(root)}
     files = []
     for path in sorted(root.rglob("*")):
         relative = path.relative_to(root)
         if not is_package_path(relative):
+            continue
+        if relative.parts[:2] == ("assets", "vault") and relative not in managed_vault_files:
             continue
         if path.is_symlink():
             raise ValueError("Unexpected symlink in downloaded skill: " + str(path))

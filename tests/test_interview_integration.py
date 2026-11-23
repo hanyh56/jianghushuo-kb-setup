@@ -41,15 +41,15 @@ class InterviewIntegrationTests(unittest.TestCase):
         self.run_install()
         manifest = json.loads((ROOT / "assets/vault-manifest.json").read_text(encoding="utf-8"))
         managed = {item["path"] for item in manifest}
-        self.assertFalse((self.vault / "02-Areas-长期领域/我是谁.md").exists())
+        self.assertFalse((self.vault / "02-资产库/我是谁.md").exists())
         self.assertFalse((self.vault / "90-系统/个人说明入口.md").exists())
-        self.assertNotIn("02-Areas-长期领域/我是谁.md", managed)
+        self.assertNotIn("02-资产库/我是谁.md", managed)
         self.assertTrue((self.vault / "90-系统/我是谁访谈规则.md").is_file())
 
     def test_reinstall_preserves_profile_and_progress_in_all_states(self):
         self.run_install()
         # Use a non-default location, as required for pre-existing user notes.
-        profile = self.vault / "02-Areas-长期领域/已有个人介绍.md"
+        profile = self.vault / "02-资产库/已有个人介绍.md"
         entry = self.vault / "90-系统/个人说明入口.md"
         for state in ("待开始访谈", "访谈中", "已暂停", "已跳过", "初版可用"):
             with self.subTest(state=state):
@@ -57,13 +57,13 @@ class InterviewIntegrationTests(unittest.TestCase):
                             "# 隔离测试资料\n本人明确的话：我最近在学陶艺。\n"
                             "待答问题：你希望 AI 先帮哪一步？\n跳过项：时间安排。\n").encode("utf-8")
                 profile.write_bytes(original)
-                pointer = "# 个人说明入口\n\n[[02-Areas-长期领域/已有个人介绍]]\n".encode("utf-8")
+                pointer = "# 个人说明入口\n\n[[02-资产库/已有个人介绍]]\n".encode("utf-8")
                 entry.write_bytes(pointer)
                 self.run_install()
                 self.run_install("--check")
                 self.assertEqual(profile.read_bytes(), original)
                 self.assertEqual(entry.read_bytes(), pointer)
-                self.assertFalse((self.vault / "02-Areas-长期领域/我是谁.md").exists())
+                self.assertFalse((self.vault / "02-资产库/我是谁.md").exists())
 
     def test_exact_prior_runtime_same_vault_upgrades_with_original_byte_backup(self):
         path = self.skills / "personal-kb/SKILL.md"
@@ -95,14 +95,14 @@ class InterviewIntegrationTests(unittest.TestCase):
                 self.assertEqual(path.read_bytes(), original)
 
     def test_roundtrip_read_failure_cleans_probe_and_does_not_report_pass(self):
-        (self.vault / "00-灵感与收件箱").mkdir(parents=True)
+        (self.vault / "00-灵感库").mkdir(parents=True)
         with mock.patch.object(Path, "read_text", side_effect=PermissionError("fixture: read blocked")):
             with self.assertRaises(PermissionError):
                 setup_support.roundtrip(self.vault, install.destination)
         self.assertEqual(list(self.vault.rglob("_安装验收-*")), [])
 
     def test_roundtrip_write_failure_is_not_success(self):
-        (self.vault / "00-灵感与收件箱").mkdir(parents=True)
+        (self.vault / "00-灵感库").mkdir(parents=True)
         with mock.patch.object(Path, "open", side_effect=PermissionError("fixture: write blocked")):
             with self.assertRaises(PermissionError):
                 setup_support.roundtrip(self.vault, install.destination)
@@ -134,6 +134,20 @@ class InterviewIntegrationTests(unittest.TestCase):
         manifest = json.loads((source / "assets/vault-manifest.json").read_text(encoding="utf-8"))
         self.assertNotIn("AGENTS.md.jhs-backup-fixture", {item["path"] for item in manifest})
         self.assertEqual(backup.read_bytes(), original)
+
+    def test_obsolete_package_directory_is_not_copied_into_vault_or_next_skill(self):
+        source = self.base / "旧包残留副本"
+        shutil.copytree(ROOT, source, ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc", "*.jhs-backup-*"))
+        stale = source / "assets/vault/00-灵感与收件箱/旧入口.md"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("旧包遗留内容，不属于当前清单。", encoding="utf-8")
+        result = subprocess.run(
+            [sys.executable, str(source / "scripts/install.py"), "--vault", str(self.vault),
+             "--skills-dir", str(self.skills)], capture_output=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.vault / "00-灵感与收件箱").exists())
+        self.assertTrue((self.vault / "00-灵感库").is_dir())
+        self.assertNotIn(stale, workflow.package_files(source))
 
 
 if __name__ == "__main__":
