@@ -6,11 +6,17 @@
 | --- | --- | --- |
 | Codex 本地 | `~/.agents/skills/`；已确认当前宿主加载其他配置目录时沿用实际目录 | `--agent codex`，或显式 `--skills-dir` |
 | Claude Code 本地 | `~/.claude/skills/` | `--agent claude`，或显式 `--skills-dir` |
+| Cursor 本地 | `~/.cursor/skills/`；也支持 `~/.agents/skills/` | `--skills-dir "已确认的实际目录"` |
+| Gemini CLI 本地 | `~/.gemini/skills/` 或 `~/.agents/skills/` | `--skills-dir "已确认的实际目录"` |
+| VS Code 的 Copilot harness | `~/.copilot/skills/`；VS Code 中选 Claude/Codex harness 时遵循相应宿主目录 | `--skills-dir "已确认的实际目录"` |
+| OpenCode 本地 | `~/.config/opencode/skills/`；也支持 `~/.agents/skills/` 等兼容目录 | `--skills-dir "已确认的实际目录"` |
 | WorkBuddy 本地 | 自定义技能先通过「添加技能 → 上传技能」导入，核实实际读取位置 | 确认发现目录后用 `--skills-dir "真实路径"`；不要臆测成 Codex / Claude 目录 |
 | 其他支持 Agent Skills 的本地宿主 | 读取其已配置目录或官方说明 | `--skills-dir "真实路径"` |
 | 只有项目指令文件的宿主 | 实际读取的 `AGENTS.md`、`CLAUDE.md` 或其他 UTF-8 文件 | `--agent-file "真实路径"` |
 
 `--skills-dir` 优先于 `--agent` 的标准目录。完整入口 `setup.py` 安装当前 `jianghushuo-kb-setup` 包并调用文件层 `install.py` 生成绑定实际库路径的 `personal-kb`。不复制用户笔记到 skills 目录，不把本库经验笔记自动注册为可执行 skill。若当前安装 skill 已从正确目录加载，复用，不额外复制。
+
+`--agent` 当前只接受 `codex` 和 `claude`；不要给其他产品编造快捷参数。表中的目录是官方约定，不能代替检查实际客户端版本、配置和启用状态。仅持久指令文件的宿主使用 `--agent-file`，不要求它再提供不存在的原生 skills 机制，但仍须核实该指令文件实际被加载。
 
 当前宿主限制了库目录的访问时，使用其支持的添加目录或权限流程；skills 被发现不等于已获得文件访问权。只改本次需要的入口，不替换全局规则，不把含私人路径的配置提交到公共仓库。
 
@@ -20,4 +26,8 @@ WorkBuddy 的普通对话安装按官方说明只支持技能市场；本包发�
 
 如果已有 `personal-kb` 指向另一个 Vault，保留并确认用户的目标，不悄悄更换。若实际需要多库，再为每库单独命名运行入口。
 
-来源（2026-10-26 核对）：[OpenAI 官方 Build skills](https://learn.chatgpt.com/docs/build-skills)、[Claude Code 官方 Skills](https://code.claude.com/docs/en/skills)、[WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。路径与限制若变化，以宿主实际发现结果和最新官方说明为准。
+## 验证边界
+
+目录、配置、文件读写、备份和入口生成通过隔离模拟，只证明安装文件层可用；通过三种操作系统的 CI 不代表三种系统中的所有 Agent 客户端已经实测。新会话发现、自动触发、权限确认、Obsidian 界面与“一题后等待”仍须在目标宿主分别验收。CLI 没有桌面控制能力时，只能交接必要的登记/界面步骤；远程容器和纯聊天不能冒充用户本机安装完成。
+
+来源（2026-11-23 核对）：[OpenAI 官方 Build skills](https://learn.chatgpt.com/docs/build-skills)、[Claude Code 官方 Skills](https://code.claude.com/docs/en/skills)、[Cursor Skills](https://prod.cursor.com/help/customization/skills)、[Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)、[VS Code Agent Skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)、[OpenCode Skills](https://opencode.ai/docs/skills/)、[WorkBuddy 官方技能说明](https://www.codebuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills-Market)。路径与限制若变化，以宿主实际发现结果和最新官方说明为准。

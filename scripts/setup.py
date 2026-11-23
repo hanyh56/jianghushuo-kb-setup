@@ -113,7 +113,8 @@ def setup(vault, skills_dir=None, agent_file=None, download_dir=None, check=Fals
     pending = []
     skill_ready = target is not None and all((target / p.relative_to(ROOT)).is_file()
         and (target / p.relative_to(ROOT)).read_bytes() == p.read_bytes() for p in files)
-    if not skill_ready:
+    instruction_fallback = target is None and agent_file is not None
+    if not skill_ready and not instruction_fallback:
         pending.append({"action": "install_setup_skill_in_host", "source": str(ROOT),
                         "detail": "Use the actual host skill directory or upload the complete package; verify it is enabled"})
     if result.get("status") != "ok":
@@ -140,15 +141,17 @@ def setup(vault, skills_dir=None, agent_file=None, download_dir=None, check=Fals
     elif plan.get("folder_to_select"):
         pending.append({"action": "register_existing_folder_in_gui", "folder": str(vault),
                         "detail": "Dismiss Vault not found if present. Open folder as vault / 打开本地仓库. Select this exact folder, then rerun setup without --recover-vault-not-found"})
+    host_verification = ("Verify the persistent instruction file is actually loaded by this host"
+                         if instruction_fallback else "Verify the skill is enabled")
     pending.append({"action": "verify_host_and_workbench_in_ui", "vault": str(vault),
-                    "detail": "Verify the skill is enabled, the correct vault/workbench, folders, templates and Bases. Record actual UI evidence; command dispatch is insufficient"})
+                    "detail": host_verification + ", the correct vault/workbench, folders, templates and Bases. Record actual UI evidence; command dispatch is insufficient"})
     pending.append({"action": "start_or_resume_identity_interview_after_acceptance", "vault": str(vault),
                     "requires": "All installation/host/UI checks and actual write/read probe have passed; check-only is insufficient",
                     "rules": str(vault / "90-系统/我是谁访谈规则.md"),
                     "detail": "Read the existing profile and progress first. Interactive: ask one unanswered question and wait; completed: reuse; paused/skipped: wait for user to resume. Noninteractive: save pending interview and read back. Never start or report success while acceptance is blocked"})
     return {"status": "needs_actions", "complete": False, "source": SOURCE_URL,
             "setup_skill": {"path": str(target) if target else None, "files_installed": skill_ready,
-                            "host_enabled": "requires_host_verification"},
+                            "host_enabled": "not_applicable_instruction_fallback" if instruction_fallback else "requires_host_verification"},
             "vault": str(vault), "files": result, "obsidian": app,
             "desktop": plan, "pending_actions": pending,
             "next": "The agent must perform pending_actions, rerun checks after GUI changes, and only then report observed completion"}

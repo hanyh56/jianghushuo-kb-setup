@@ -125,6 +125,32 @@ class WorkflowTests(unittest.TestCase):
         self.installer.assert_not_called()
         self.dispatch.assert_not_called()
 
+    def test_instruction_only_host_has_no_inapplicable_native_skill_requirement(self):
+        entry = self.base / "GEMINI.md"
+        report = workflow.setup(self.vault, agent_file=entry)
+        actions = [item["action"] for item in report["pending_actions"]]
+        self.assertEqual(report["files"]["completion"]["agent_entry"], "configured")
+        self.assertNotIn("install_setup_skill_in_host", actions)
+        self.assertFalse(report["setup_skill"]["files_installed"])
+        self.assertEqual(report["setup_skill"]["host_enabled"], "not_applicable_instruction_fallback")
+        verification = next(item for item in report["pending_actions"]
+                            if item["action"] == "verify_host_and_workbench_in_ui")
+        self.assertIn("persistent instruction file", verification["detail"])
+        self.assertFalse(report["complete"])
+        before = contents(self.base)
+        checked = workflow.setup(self.vault, agent_file=entry, check=True)
+        self.assertNotIn("install_setup_skill_in_host", [item["action"] for item in checked["pending_actions"]])
+        self.assertEqual(contents(self.base), before)
+
+    def test_missing_instruction_entry_needs_file_repair_without_native_skill_requirement(self):
+        report = workflow.setup(self.vault, agent_file=self.base / "MISSING.md", check=True)
+        actions = [item["action"] for item in report["pending_actions"]]
+        self.assertNotIn("install_setup_skill_in_host", actions)
+        self.assertIn("finish_files_or_agent_entry", actions)
+        self.assertNotEqual(report["files"]["completion"]["agent_entry"], "configured")
+        self.assertFalse(report["complete"])
+        self.assertFalse((self.base / "MISSING.md").exists())
+
     def test_failed_download_keeps_ready_files_and_returns_recovery_action(self):
         self.info["installed"] = False
         self.installer.side_effect = OSError("download unavailable")
